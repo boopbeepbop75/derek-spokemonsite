@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Derek's Pokémon Site{% endblock %}
+
+{% block content %}
+<div id="outer-container">
+    <h2>Hi</h2>
+    <p>Poop</p>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', path='css/index.css') }}">
+{% endblock %}

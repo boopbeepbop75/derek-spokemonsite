@@ -1,0 +1,32 @@
+/* Outer container uses flexbox */
+#outer-container {
+    display: flex;
+    align-items: flex-start; /* don't stretch both containers to match height */
+    flex-wrap: wrap;            /* allow children to wrap on smaller screens */
+    gap: 1rem;                  /* space between boxes */
+    padding: 1rem;
+    box-sizing: border-box;
+    min-height: 100%;
+}
+
+/* Force proportions when space allows */
+#tools-container {
+    flex: 0 0 25%;              /* lock it to 30% width when possible */
+    padding: 0;    
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column; /* stack children vertically */  
+    gap: 1rem;
+}
+
+#output-container {
+    flex: 0 0 73%;              /* take the rest (70%) */
+    min-height: 100px;  
+    padding: 0;    
+    margin: 0 auto;
+
+    display: flex;           /* make it a flex container */
+    flex-wrap: wrap;         /* allow wrapping to next line if needed */
+    align-items: flex-start; /* don't stretch both containers to match height */
+    gap: 1rem;               /* space between tables */
+}

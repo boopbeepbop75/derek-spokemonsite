@@ -1,0 +1,99 @@
+#button-container {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+/* Make textarea fill its container nicely */
+#names, #replays {
+    width: 100%;
+    resize: vertical;
+}
+
+#replays {
+    height: 300px;
+}
+
+#names {
+    height: 50px;
+}
+
+#teams {
+    width: 60%;
+}
+
+#counts {
+    width: 35%;
+}
+
+#types {
+    width: 100%;
+    order: 1;         /* makes sure it's last */
+}
+
+#save {
+    display: none;
+}
+
+#modal {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow: auto;
+    background-color: rgba(56, 55, 55, 0.9); /* gray w/ transparency */
+}
+
+#modal p {
+    float: center;
+    background-color: black;
+    text-align: center;
+    padding: 10px 0px;
+}
+
+#lsButtonDiv {
+    display: flex;
+    flex-direction: column;   /* stack children vertically */
+    align-items: center;      /* center horizontally */
+    justify-content: center;  /* center vertically if parent allows */
+    width: fit-content;
+    min-width: 250px;
+    margin: auto;
+    padding: 10px;
+}
+
+#lsButtonDiv button {
+    font-size: 1em;
+}
+
+.player-btn-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.localStorageBtn {
+    display: block;
+    float: center;
+    opacity: 1;
+}
+
+@media (max-width: 1400px) {
+    #output-container table {
+        width: 90%;
+    }
+}
+
+@media (max-width: 900px) {
+    #outer-container {
+        flex-direction: column; /* stack vertically on small screens */
+        font-size: 1em;        /* shrink text a little */
+    }
+
+    #tools-container {
+        width: 90%;
+    }
+}

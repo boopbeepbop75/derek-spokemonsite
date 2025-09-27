@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    {# Default meta description (can be overridden in subpages) #}
+    <meta name="description" content="Pokemon tools" />
+
+    {# Allow subpages to inject their own meta tags #}
+    {% block meta %}{% endblock %}
+
+    <title>{% block title %}Derek's Pokémon Site{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', path='images/bronzong.png') }}" type="image/png" sizes="32x32">
+    <link rel="stylesheet" href="{{ url_for('static', path='base.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+      <div id="page_title_container">
+        {% block page_title %}
+            <h3>Derek's Pokemon Site</h3>
+        {% endblock %}
+      </div>
+      <img src="{{ url_for('static', path='images/drifblim.png') }}" alt="" class="logo">
+      <img src="{{ url_for('static', path='images/voltorb.png') }}" alt="" class="logo_2">
+        <nav>
+          <ul class="nav">
+            <li><a href="/">Home</a></li>
+            <li class="dropdown">
+              <a href="#">Tools ▾</a>
+              <ul class="dropdown-content">
+                <li><a href="/scouter", class="nav-link">Replay Scouter</a></li>
+                <li><a href="/replay_scraper", class="nav-link">Replay Scraper</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+    </header>
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

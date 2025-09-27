@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Replay Scouter{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="Scout Pokémon teams from showdown replays, analyze usage and view stats." />
+{% endblock %}
+
+{% block page_title %}
+    <h3>Replay Scouter</h3>
+{% endblock %}
+
+{% block content %}
+    <div id="outer-container">
+        <div id="tools-container">
+            <textarea id="replays" placeholder="Enter replays here"></textarea>
+            <textarea id="names" placeholder="Enter player name(s) here"></textarea>
+            <input id="tier" placeholder="Enter tier (Optional)" />
+            <div id="button-container">
+                <button id="save">Save</button>
+                <button id="sendBtn">Scout</button>
+                <button id="load">Load</button>
+            </div>
+            <div id="types-container"></div>
+        </div>
+        <div id="output-container"></div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', path='css/tools.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/replay_handling/scouter.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script type="module" src="{{ url_for('static', path='js/scouter/scouter_client.js') }}"></script>
+{% endblock %}

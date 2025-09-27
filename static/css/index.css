@@ -1,0 +1,10 @@
+/* Outer container uses flexbox */
+#outer-container {
+    display: flex;
+    align-items: flex-start; /* don't stretch both containers to match height */
+    flex-wrap: wrap;            /* allow children to wrap on smaller screens */
+    gap: 1rem;                  /* space between boxes */
+    padding: 1rem;
+    box-sizing: border-box;
+    min-height: 100%;
+}

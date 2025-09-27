@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Replay Scraper{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="Scrape Pokémon teams from smogon threads, analyze usage and view stats." />
+{% endblock %}
+
+{% block page_title %}
+    <h3>Replay Scraper</h3>
+{% endblock %}
+
+{% block content %}
+    <div id="outer-container">
+        <div id="tools-container">
+            <textarea id="threads" placeholder="Enter threads here"></textarea>
+            <textarea id="names" placeholder="Enter player name(s) here"></textarea>
+            <input type="text" id="tier" placeholder="Tier to filter by... (optional)">
+            <div id="button-container">
+                <button id="scrape">Scrape</button>
+            </div>
+            <input type="text" id="searchBar" placeholder="Search players or Pokémon...">
+        </div>
+        <div id="output-container"></div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', path='css/tools.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/replay_handling/scraper.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+    <script type="module" src="{{ url_for('static', path='js/scouter/replay_scraper_client.js') }}"></script>
+{% endblock %}

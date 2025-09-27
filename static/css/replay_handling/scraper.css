@@ -1,0 +1,40 @@
+#names, #threads, #button-container {
+    width: 100%;
+    resize: vertical;
+}
+
+#threads {
+    height: 300px;
+    width: 90%;
+}
+
+input {
+    width: 90%;
+}
+
+#names {
+    display: none;
+}
+
+#button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+@media (max-width: 1400px) {
+    #output-container table {
+        width: 90%;
+    }
+}
+
+@media (max-width: 900px) {
+    #outer-container {
+        flex-direction: column; /* stack vertically on small screens */
+        font-size: 1em;        /* shrink text a little */
+    }
+
+    #tools-container {
+        width: 90%;
+    }
+}
