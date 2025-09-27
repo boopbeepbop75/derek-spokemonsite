@@ -6,6 +6,8 @@ unsupported_formats = r"\[gen [1-4]\]"
 collapse_forms = ("greninja", "genesect", "zamazenta", "zacian", "arceus", "xerneas", "pumpkaboo", "mrmime",
                   "gourgeist", "silvally", "urshifu")
 
+dex_exceptions = ("florges")
+
 # Battle log lines to skip
 skip_prefixes = (
     "|c|", "|j|", "|l|", "|-damage|", "|turn|",
@@ -24,3 +26,7 @@ def clean_mon_name(name: str) -> str:
     if base in collapse_forms:
         return base
     return name.lower().replace("%", "").replace(". ", "-")
+
+def clean_mon_name_dex(name: str) -> str:
+    base = name.lower()
+    print(base)

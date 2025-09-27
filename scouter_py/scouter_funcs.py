@@ -119,7 +119,9 @@ def handle_team_typings(teams, dex):
         try:
             typings = []
             for t in team:
-                name = t.split("-")[0].lower().replace('-', "").replace(" ", "").replace(":", "")
+                name = t.lower().replace('-', "").replace(" ", "").replace(":", "")
+                if 'florges' in name:
+                    name = 'florges'
                 typings.append(dex[name]["types"])
 
             team_typings.append(typings)
@@ -170,7 +172,7 @@ async def scout_player(data, dex):
     cleaned = (normalize_url(url) for url in replay_links)
 
     # 2. Fetch all replays at once using the helper
-    fetched_replays, replays = await fetch_replays(cleaned)
+    fetched_replays, fetched_urls = await fetch_replays(cleaned)
 
     # Sync parse
     results = [parse_replay(r, player.names) for r in fetched_replays]
@@ -214,4 +216,4 @@ async def scout_player(data, dex):
     #Clean up NP
     clean_dict = convert(mons_dictionary)
 
-    return player.teams, clean_dict, type_counts, replays
+    return player.teams, clean_dict, type_counts, fetched_urls
