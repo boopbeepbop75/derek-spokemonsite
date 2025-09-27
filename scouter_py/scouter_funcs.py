@@ -117,10 +117,11 @@ def handle_team_typings(teams, dex):
     team_typings = []
     for team in teams:
         try:
-            typings = [
-                dex[t.lower().replace('-', "").replace(" ", "").replace(":", "")]["types"] 
-                for t in team
-            ]
+            typings = []
+            for t in team:
+                name = t.split("-")[0].lower().replace('-', "").replace(" ", "").replace(":", "")
+                typings.append(dex[name]["types"])
+
             team_typings.append(typings)
         except KeyError as e:
             print(f"Pokemon error: Missing key {e} (team skipped) -> {team}")
