@@ -49,6 +49,11 @@ async def scouter_page(request: Request):
 async def scouter_page(request: Request):
     return templates.TemplateResponse("scouter/replay_scraper.html", {"request": request})
 
+### Submit teams page ###
+@app.get("/submit_teams")
+async def scouter_page(request: Request):
+    return templates.TemplateResponse("ml_ai/submit_teams.html", {"request": request})
+
 ### Replay handling ###
 @app.post("/scout")
 async def scout(request: Request):
@@ -56,7 +61,7 @@ async def scout(request: Request):
         start = time.time()
         try:
             data = await request.json()   # async request body
-            teams, clean_dict, type_counts, replays = await scouter.scout_player(data, dex) ### Get scout info
+            teams, clean_dict, type_counts, replays, opponents, winners = await scouter.scout_player(data, dex) ### Get scout info
 
             elapsed = time.time() - start
             print(f"Scouting took {elapsed:.2f} seconds")
@@ -65,7 +70,9 @@ async def scout(request: Request):
                 "teams": teams,
                 "mon_info": clean_dict,
                 "type_counts": type_counts,
-                "replays": replays
+                "replays": replays,
+                "opponents": opponents,
+                "winners": winners
             })
 
         except Exception as e:
