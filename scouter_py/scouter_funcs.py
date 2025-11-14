@@ -94,6 +94,7 @@ def parse_replay(replay: dict, player_names: list[str]):
 
     # Extract mons
     players_dict = {players[0]: [], players[1]: []}
+    winner = ""
 
     for line in log:
         if line.startswith("|poke|p1|"):
@@ -106,10 +107,15 @@ def parse_replay(replay: dict, player_names: list[str]):
                 line[len("|poke|p2|"):].split(", ")[0]
                 .replace("|item", "").replace("|", "")
             )
+        elif line.startswith("|win|"):
+            winner = line[len("|win|"):].lower().replace(" ", "")
+            winner = "w" if string_exceptions.clean_name(winner) in player_names else "l"
 
-    for k, v in players_dict.items():
+    for i, (k, v) in enumerate(players_dict.items()):
         if k.lower() in player_names:
-            return v
+            opponent = 0 if i == 1 else 1
+            opponent = list(players_dict.keys())[opponent]
+            return v, opponent, winner
 
     return "E"
         
@@ -149,6 +155,18 @@ def handle_team_typings(teams, dex):
 
     return type_counts
 
+def sort_replays(replays, urls):
+    # Combine the lists
+    combined = list(zip(replays, urls))
+    
+    # Sort by the uploadtime key in each replay dict
+    combined.sort(key=lambda x: x[0]['uploadtime'])
+    
+    # Unzip back into separate lists
+    replays_sorted, urls_sorted = zip(*combined)
+    
+    return list(replays_sorted), list(urls_sorted)
+
 async def scout_player(data, dex):
     replays = data.get("message", "")
     name_list = re.split(r", |\n", data.get("names"))
@@ -174,8 +192,18 @@ async def scout_player(data, dex):
     # 2. Fetch all replays at once using the helper
     fetched_replays, fetched_urls = await fetch_replays(cleaned)
 
+    fetched_replays, fetched_urls = sort_replays(fetched_replays, fetched_urls)
+
     # Sync parse
-    results = [parse_replay(r, player.names) for r in fetched_replays]
+    #results = [parse_replay(r, player.names) for r in fetched_replays]
+    results = []
+    opponents = []
+    winners = []
+    for r in fetched_replays:
+        t, o, w = parse_replay(r, player.names)
+        results.append(t)
+        opponents.append(o)
+        winners.append(w)
 
     player.teams = [team for team in results if team != "E"]
 
@@ -216,4 +244,6 @@ async def scout_player(data, dex):
     #Clean up NP
     clean_dict = convert(mons_dictionary)
 
-    return player.teams, clean_dict, type_counts, fetched_urls
+    fetched_urls = [url.replace(".json", "") for url in fetched_urls]
+
+    return player.teams, clean_dict, type_counts, fetched_urls, opponents, winners
