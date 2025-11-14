@@ -113,7 +113,7 @@ function addCopyButtonToTable(tableId) {
     // create minimal icon element
     const icon = document.createElement("span");
     icon.className = "copy-icon";
-    icon.innerHTML = "📄"; // looks like two stacked rectangles
+    icon.innerHTML = "📄";
     icon.title = "Copy table";
 
     icon.addEventListener("click", (e) => {
@@ -135,8 +135,27 @@ function clear_children(id) {
 function create_tables(data) {
     // extract info
     const mon_info = data.mon_info;
+    const winners = data.winners;
+    let opponents = data.opponents;
+    let cur = opponents[0].slice(0, 12);
+    opponents[0] = cur;
+
+    for (let i = 1; i < opponents.length; i++) {
+        let sliced = opponents[i].slice(0, 12);
+        if (sliced === cur) {
+            opponents[i] = ""; // duplicate prefix → blank
+        } else {
+            cur = sliced;
+            opponents[i] = sliced; // store sliced version
+        }
+    }
     const teams = data.teams;
     const type_info = data.type_counts;
+    const replays = data.replays;
+    console.log(data);
+    console.log(replays);
+    console.log(winners);
+    console.log(opponents);
     const container = document.getElementById('output-container');
 
     // Sort and map mon_info
@@ -144,8 +163,8 @@ function create_tables(data) {
         .sort((a, b) => b[1].count - a[1].count)
         .map(([mon, stats]) => ({
             "Pokemon": mon,
-            "#": stats.count,
-            "% games": `${stats.proportion}%`
+            "% games": `${stats.proportion}%`,
+            "#": stats.count
         }));
 
     let types_info = []
@@ -160,21 +179,42 @@ function create_tables(data) {
     })
 
     //const type_info = Object.entries(type_info)
-    // Step 1: Generate headers dynamically
-    const maxLength = Math.max(...teams.map(team => team.length));
-    const headers = Array.from({ length: maxLength }, (_, i) => `Mon ${i + 1}`);
 
-    // Step 2: Map teams to objects matching headers
-    const mappedTeams = teams.map(team => {
+    // ===== START: EDIT =====
+
+    // Step 1: Generate headers dynamically, adding Opponent and Winner
+    const maxLength = Math.max(...teams.map(team => team.length));
+    const teamHeaders = Array.from({ length: maxLength }, (_, i) => `Mon ${i + 1}`);
+    const headers = ['Opponent', ...teamHeaders, 'Result']; // Final headers for the table
+
+    // Step 2: Map teams to objects, now including opponent, winner, and replay URL
+    const mappedTeams = teams.map((team, index) => {
+        
         const obj = {};
-        headers.forEach((header, i) => {
+
+        // Add opponent to the beginning of the object
+        obj['Opponent'] = opponents[index];
+
+        // Loop through team headers to add each Pokémon
+        teamHeaders.forEach((header, i) => {
             obj[header] = team[i] || ""; // fill empty if team shorter
         });
+
+        // Add winner to the end of the object
+        obj['Result'] = winners[index];
+
+        // Add the replay URL to the object; it won't be a column but will be available
+        obj['Replay'] = replays[index];
+
         return obj;
     });
+    
+    // ===== END: EDIT =====
 
-    let table_1 = createTable(["Pokemon", "#", "% games"], sortedMons, 0);
-    let table_2 = createTable(headers, mappedTeams, "all");
+
+    let table_1 = createTable(["Pokemon", "% games", "#"], sortedMons, 0);
+    // The call to create table 2 now uses the updated headers and data
+    let table_2 = createTable(headers, mappedTeams, "mons");
     let table_3 = createTable(["Type", "#", "Overall %"], types_info, "none")
     table_1.id = "counts"
     table_2.id = "teams"
@@ -302,8 +342,88 @@ function bytesToMB(bytes) {
     return (bytes / 1024 / 1024).toFixed(2);
 }
 
-// Function to copy table to google sheets
+function normalizeWord(str) {
+    return str
+        .split(/\s+/) // Split by spaces
+        .map(word => {
+            // Capitalize each segment around dashes but keep the dash
+            const segments = word.split('-').map(seg => 
+                seg.charAt(0).toUpperCase() + seg.slice(1).toLowerCase()
+            );
+            return segments.join('-');
+        })
+        .join(' ');
+}
+
 function copyTableToClipboard(tableId) {
+    const table = document.getElementById(tableId);
+    const table_array = Array.from(table.querySelectorAll("tr"))
+        .filter(tr => !tr.querySelector("th"));
+    const mid = Math.ceil(table_array.length / 2);
+    const tableRows1 = table_array.slice(0, mid);
+    const tableRows2 = table_array.slice(mid);
+    const maxRows = Math.max(tableRows1.length, tableRows2.length);
+
+    let formulas = [];
+
+    // Convert <td> elements into Sheets-safe entries
+    const convertCells = (arr) => arr.flatMap(td => {
+        const parts = [];
+        
+        // ===== START: EDIT =====
+        const link = td.querySelector("a");
+
+        // If an <a> tag is found, create a HYPERLINK formula
+        if (link && link.href) {
+            const textRaw = link.textContent.trim();
+            // Sanitize the text for use inside the formula's quotes
+            const cleanText = textRaw.replace(/"/g, '""'); 
+            parts.push(`HYPERLINK("${link.href}", "${normalizeWord(cleanText)}")`);
+        } else {
+        // ===== END: EDIT =====
+        
+            // Original logic for images and text for cells without links
+            const img = td.querySelector("img");
+            if (img && img.src) {
+                parts.push(`IMAGE("${img.src}")`);
+            }
+            const textRaw = td.textContent.trim();
+            if (textRaw) {
+                const clean = textRaw.replace(/"/g, '""');
+                parts.push(`"${normalizeWord(clean)}"`);
+            }
+        } // Closing the new 'else' block
+
+        // Ensure each td contributes something (so spacing stays consistent)
+        if (parts.length === 0) return ['""'];
+        return parts;
+    });
+
+    console.log(tableRows1[0]);
+    console.log(tableRows2[0]);
+
+
+    // Combine the two halves row by row
+    for (let i = 0; i < maxRows; i++) {
+        const leftCells = tableRows1[i] ? Array.from(tableRows1[i].querySelectorAll("td")) : [];
+        const rightCells = tableRows2[i] ? Array.from(tableRows2[i].querySelectorAll("td")) : [];
+
+        const leftSide = convertCells(leftCells);
+        const rightSide = convertCells(rightCells);
+
+        const combined = [...leftSide, ...rightSide];
+        const rowFormula = `={${combined.join(",")}}`;
+        formulas.push(rowFormula);
+    }
+
+    const output = formulas.join("\n");
+
+    navigator.clipboard.writeText(output).then(() => {
+        alert("Table copied! Paste directly into Google Sheets.");
+    });
+}
+
+function copyMonsTable(tableId) {
     const table = document.getElementById(tableId);
     let tsv = "";
 

@@ -81,6 +81,10 @@
     opacity: 1;
 }
 
+.replay {
+    text-decoration: underline;
+}
+
 @media (max-width: 1400px) {
     #output-container table {
         width: 90%;

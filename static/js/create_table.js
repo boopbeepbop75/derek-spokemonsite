@@ -20,20 +20,43 @@ export function createTable(headers, rows, icon) {
             const td = document.createElement("td");
 
             let addImage = false;
-            if (icon === "all") addImage = true;
-            else if (index === icon) addImage = true;
+            if (icon === "all") {
+                addImage = true;
+            } else if (icon === "mons") {
+                if (index > 0 && index < headers.length - 1) {
+                    addImage = true;
+                }
+            } else if (index === icon) {
+                addImage = true;
+            }
 
             if (addImage) {
                 const img = document.createElement("img");
-                img.src = getSpriteFromName(row[key]); // your sprite URL
-                img.style.width = "30px"; // optional styling
+                // Use a check to prevent errors if the key is empty
+                if(row[key]) {
+                    img.src = getSpriteFromName(row[key]); // your sprite URL
+                }
+                img.style.width = "40px"; // optional styling
                 img.style.height = "30px";
                 td.appendChild(img);
 
-                // also add text after the image if you want
                 td.appendChild(document.createTextNode(" " + row[key]));
             } else {
-                td.textContent = row[key];
+                // ===== START: EDIT =====
+                // If this is the 'Winner' column and a Replay link exists, create a link
+                if (key === 'Result' && row.Replay) {
+                    const link = document.createElement('a');
+                    link.href = row.Replay;
+                    link.className = "replay";
+                    link.textContent = row[key].toUpperCase(); // Winner's name
+                    link.target = "_blank"; // Open in a new tab for better user experience
+                    link.rel = "noopener noreferrer"; // Security best practice
+                    td.appendChild(link);
+                } else {
+                    // Otherwise, just display the text content as before
+                    td.textContent = row[key];
+                }
+                // ===== END: EDIT =====
             }
 
             tr.appendChild(td);
@@ -44,4 +67,3 @@ export function createTable(headers, rows, icon) {
 
     return table;
 }
-
