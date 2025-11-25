@@ -80,7 +80,7 @@ def parse_replay(replay: dict, player_names: list[str]):
     ]
     if not any(p in player_names for p in players):
         #print(f'skipping due to player not in replays {players}, {player_names}')
-        return "E"
+        return "E", "E", "E"
 
     # Clean up battle log
     log = [
@@ -117,7 +117,7 @@ def parse_replay(replay: dict, player_names: list[str]):
             opponent = list(players_dict.keys())[opponent]
             return v, opponent, winner
 
-    return "E"
+    
         
 def handle_team_typings(teams, dex):
     team_typings = []
@@ -169,11 +169,15 @@ def sort_replays(replays, urls):
 
 async def scout_player(data, dex):
     replays = data.get("message", "")
+    print(replays)
+
     name_list = re.split(r", |\n", data.get("names"))
     player = player_class.Player([string_exceptions.clean_name(name) for name in name_list])
 
     # Organize info
-    replay_links = set(replays.split("\n"))
+    replay_links = set(re.split(r", |\n", replays))
+
+    print(replay_links)
 
     # Clean URLs before fetch
     cleaned_urls = []
@@ -185,10 +189,9 @@ async def scout_player(data, dex):
             url += ".json"
         cleaned_urls.append(url)
 
-
     # 1. Normalize URLs (generator expression)
     cleaned = (normalize_url(url) for url in replay_links)
-
+    
     # 2. Fetch all replays at once using the helper
     fetched_replays, fetched_urls = await fetch_replays(cleaned)
 
@@ -201,6 +204,8 @@ async def scout_player(data, dex):
     winners = []
     for r in fetched_replays:
         t, o, w = parse_replay(r, player.names)
+        if t == "E" and o == "E" and w == "E":
+            continue
         results.append(t)
         opponents.append(o)
         winners.append(w)
