@@ -128,7 +128,14 @@ def handle_team_typings(teams, dex):
                 name = t.lower().replace('-', "").replace(" ", "").replace(":", "")
                 if 'florges' in name:
                     name = 'florges'
-                typings.append(dex[name]["types"])
+                try:
+                    typings.append(dex[name]["types"])
+                except Exception as e:
+                    if name.endswith('mail'):
+                        try:
+                            typings.append(dex[name.replace("mail", "")]["types"])
+                        except:
+                            raise ValueError(f"handle_team_typings() error: {e}")
 
             team_typings.append(typings)
         except KeyError as e:
