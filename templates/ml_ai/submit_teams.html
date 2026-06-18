@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Submit training teams{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="Submit teams for AI training" />
+{% endblock %}
+
+{% block page_title %}
+    <h3>Submit training teams</h3>
+{% endblock %}
+
+{% block content %}
+    <div id="outer-container">
+        <div id="tools-container">
+            <div id="button-container">
+                <button id="scrape">Submit</button>
+            </div>
+        </div>
+        <div id="output-container">
+            <textarea id="teams" placeholder="Enter teams here"></textarea>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', path='css/tools.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/ai_ml/submit_teams.css') }}">
+{% endblock %}
