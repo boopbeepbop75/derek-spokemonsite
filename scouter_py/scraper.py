@@ -19,14 +19,25 @@ async def scrape_replays(client, thread_url):
 # Find all replay links inside a parsed HTML page
 def find_replays(html, tier=None):
     replays = []
+    with open("webpage.txt", "w") as f:
+        f.write(str(html))
+    replay_href = []
+    hrefs = []
     for a in html.find_all("a", href=True):
         href = a["href"].strip()
+        hrefs.append(href)
+
         parsed_link = urlparse(href)
 
         if parsed_link.netloc == "replay.pokemonshowdown.com":
+            replay_href.append(parsed_link)
             if tier is None or tier in parsed_link.path:
                 replays.append(href)
 
+    print(f"Num replays 1: {len(replays)}; num replays 2: {len(replay_href)}; num hrefs: {len(hrefs)}")
+    with open("hrefs.txt", "w") as f:
+        f.write(str(hrefs))
+        
     return replays
 
 def scrape_replay(replay: dict, url):
