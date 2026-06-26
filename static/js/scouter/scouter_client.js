@@ -118,7 +118,7 @@ function addCopyButtonToTable(tableId) {
 
     icon.addEventListener("click", (e) => {
         e.stopPropagation();
-        copyTableToClipboard(tableId);
+        copyTableToClipboardNew(tableId);
     });
 
     lastCell.style.position = "relative";
@@ -423,25 +423,75 @@ function copyTableToClipboard(tableId) {
     });
 }
 
-function copyMonsTable(tableId) {
-    const table = document.getElementById(tableId);
-    let tsv = "";
+const extractTd = (td) => {
+    // check for image
+    let formula_part = [];
+    const game_link = td.querySelector("a");
 
-    table.querySelectorAll("tr").forEach(tr => {
-        let row = [];
-        tr.querySelectorAll("th, td").forEach(td => {
-            const img = td.querySelector("img");
-            if (img) {
-                // Convert to Google Sheets =IMAGE("url") formula
-                row.push(`=IMAGE("${img.src}")`);
-            } else {
-                row.push(td.textContent.trim());
-            }
-        });
-        tsv += row.join("\t") + "\n";
+    // If an <a> tag is found, create a HYPERLINK formula
+    if (game_link && game_link.href) {
+        const textRaw = game_link.textContent.trim();
+        // Sanitize the text for use inside the formula's quotes
+        const cleanText = textRaw.replace(/"/g, '""'); 
+        formula_part.push(`=HYPERLINK("${game_link.href}", "${normalizeWord(cleanText)}")`);
+    } 
+
+    const img = td.querySelector("img");
+    if (img) {
+        const textRaw = img.src.trim();
+        // Sanitize the text for use inside the formula's quotes
+        const cleanText = textRaw.replace(/"/g, '""'); 
+        formula_part.push(`=IMAGE("${img.src}")`);
+    }
+
+    let text_content = td.textContent.trim();
+    if (text_content && !game_link) {
+        formula_part.push(text_content);
+    }
+
+    return formula_part.join("\t");
+}
+
+function copyTableToClipboardNew(tableId) {
+    console.log("penis");
+    const table = document.getElementById(tableId);
+    const table_trs = Array.from(table.querySelectorAll('tr')).slice(1);
+    console.log(table_trs[0]);
+    const middle_idx = Math.ceil(table_trs.length / 2);
+
+    let text_to_copy = [];
+    let split_idx;
+
+    table_trs.forEach((tr, idx) => {
+        const tr_tds = tr.querySelectorAll('td');
+        let parts = [];
+
+        tr_tds.forEach(td => {
+            parts.push(extractTd(td));
+        })
+        if (parts[0] != "" && idx >= middle_idx && !split_idx) {
+            split_idx = idx
+        }
+
+        const row_formula = parts.join("\t")
+        if (idx === 0) {
+            console.log(row_formula);
+        }
+        text_to_copy.push(row_formula);
     });
 
-    navigator.clipboard.writeText(tsv).then(() => {
-        alert("Table copied! Paste into Google Sheets.");
+    if (tableId == "teams") {
+        const left_col = text_to_copy.slice(0, split_idx);
+        const right_col = text_to_copy.slice(split_idx);
+        console.log(left_col[0]);
+        console.log(right_col[0]);
+        const combined = left_col.map((row, i) => `${row}\t${right_col[i] ?? ""}`);
+        text_to_copy = combined.join("\n");
+    } else {
+        text_to_copy = text_to_copy.join("\n");
+    }
+
+    navigator.clipboard.writeText(text_to_copy).then(() => {
+        alert("Table copied! Paste directly into Google Sheets.");
     });
 }
